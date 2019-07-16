@@ -12,7 +12,7 @@ $( document ).ready(function() {
   //Init Globals
   var totalCols = 10;             //traditional tetris is 10 columns, by 20
   var totalRows = 20;             //traditional tetris is 10 columns, by 20
-  var speed = 1000;               //the speed of the game in milliseconds
+  var speed = 100;                //the speed of the game in milliseconds
   var activeBuffer = '';          //active is what's moving on screen
   var commitedBuffer = '';        //commited is what has collided or commited to the grid
   var currSprite = '';            //The current "Sprite" of Brick that has been shat
@@ -27,9 +27,8 @@ $( document ).ready(function() {
   ShitBrick();
   
   //Create the main interval
-  window.setInterval(function(){
-    Pulse();
-  }, speed);  
+  var main = setInterval(Pulse, speed);
+
 
 
 
@@ -61,16 +60,21 @@ $( document ).ready(function() {
         MoveBrick();
       } else { 
         //block collided with something, commit the active
-        lockBuffer(activeBuffer);
+        CommitBuffer(activeBuffer);
         ShitBrick();
       }   
+    } else {
+
+      CommitBuffer(activeBuffer)
+      console.log('game over');
+      clearInterval(main);
     }
   }    
 
   //Lower dem brick but also redraw too
   function MoveBrick() {
     currPos += totalCols;
-    var movedBuffer = Offset(activeBuffer, currPos);
+    var movedBuffer = Offset(activeBuffer, totalCols);
     clearBuffer(activeBuffer);    
     drawBuffer(movedBuffer, colorActive);    
     activeBuffer = movedBuffer;
@@ -89,6 +93,7 @@ $( document ).ready(function() {
     //setting top middle
     currPos = Math.round((totalCols / 2) - (currSprite.split('\n')[0].length / 2));    
     activeBuffer = convertSprite(currSprite);
+    drawBuffer(activeBuffer, colorActive);
   }
   
   //if the active brick hits something
@@ -157,7 +162,8 @@ $( document ).ready(function() {
   }
   
   function CommitBuffer(buffer) {
-    commitedBuffer += buffer;      
+    commitedBuffer += buffer;  
+    drawBuffer(commitedBuffer, colorCommited);    
   }
   
   function drawBuffer(buffer, color) {
@@ -225,23 +231,25 @@ $( document ).ready(function() {
 
   //ROTATE EVENT
   $('#Grid').mousedown(function(event) {
+    if (gameOver == false) {
       switch (event.which) {
-          case 1: //left 
-              clearBuffer(activeBuffer);
-              currSprite = rotateSprite(currSprite, true); 
-              activeBuffer = convertSprite(currSprite, currPos);    
-              drawBuffer(activeBuffer, colorActive);
-              break;
-          case 2: //mid
+        case 1: //left 
+            clearBuffer(activeBuffer);
+            currSprite = rotateSprite(currSprite, true); 
+            activeBuffer = convertSprite(currSprite, currPos);    
+            drawBuffer(activeBuffer, colorActive);
+            break;
+        case 2: //mid
 
-              break;
-          case 3: //right
-              clearBuffer(activeBuffer);
-              currSprite = rotateSprite(currSprite, false); 
-              activeBuffer = convertSprite(currSprite, currPos); 
-              drawBuffer(activeBuffer, colorActive);
-              break;
-          default: //other
+            break;
+        case 3: //right
+            clearBuffer(activeBuffer);
+            currSprite = rotateSprite(currSprite, false); 
+            activeBuffer = convertSprite(currSprite, currPos); 
+            drawBuffer(activeBuffer, colorActive);
+            break;
+        default: //other
       }
+    }
   }); 
 });
