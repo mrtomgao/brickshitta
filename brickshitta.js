@@ -61,7 +61,7 @@ $( document ).ready(function() {
         MoveBrick();
       } else { 
         //block collided with something, commit the active
-        lockBuffer(activeBuffer);
+        CommitBuffer(activeBuffer);
         ShitBrick();
       }   
     }
@@ -70,7 +70,7 @@ $( document ).ready(function() {
   //Lower dem brick but also redraw too
   function MoveBrick() {
     currPos += totalCols;
-    var movedBuffer = Offset(activeBuffer, currPos);
+    var movedBuffer = Offset(activeBuffer, totalCols);
     clearBuffer(activeBuffer);    
     drawBuffer(movedBuffer, colorActive);    
     activeBuffer = movedBuffer;
