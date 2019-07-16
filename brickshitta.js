@@ -10,14 +10,17 @@ $( document ).ready(function() {
   //#############################################################
 
   //Init Globals
-  var totalCols = 10;      //traditional tetris is 10 columns, by 20
-  var totalRows = 20;      //traditional tetris is 10 columns, by 20
-  var speed = 500;         //the speed of the game
-  var activeBuffer = '';   //active is what's moving on screen
-  var commitedBuffer = '';   //commit is what has collided or commited to the grid
-  var currSprite = '';     //The current "Sprite" of Brick that has been shat
-  var currPos;             //current position of Brick which has been shat
-  var gameOver = false;    //is the player dead
+  var totalCols = 10;             //traditional tetris is 10 columns, by 20
+  var totalRows = 20;             //traditional tetris is 10 columns, by 20
+  var speed = 1000;               //the speed of the game in milliseconds
+  var activeBuffer = '';          //active is what's moving on screen
+  var commitedBuffer = '';        //commited is what has collided or commited to the grid
+  var currSprite = '';            //The current "Sprite" of Brick that has been shat
+  var currPos;                    //current position of Brick which has been shat
+  var gameOver = false;           //is the player dead
+  var colorActive = 'lightblue';  //color for the active brix
+  var colorCommited = 'white';    //color for brix that have set
+  var colorBg = 'black';          //color for dem background
 
   //Begin
   BuildGrid(totalCols, totalRows); 
@@ -55,8 +58,7 @@ $( document ).ready(function() {
   function Pulse() {
     if (gameOver == false) {
       if (detectCollide() == false) {
-        console.log(currPos);
-        drawActive();
+        MoveBrick();
       } else { 
         //block collided with something, commit the active
         lockBuffer(activeBuffer);
@@ -65,8 +67,18 @@ $( document ).ready(function() {
     }
   }    
 
+  //Lower dem brick but also redraw too
+  function MoveBrick() {
+    currPos += totalCols;
+    var movedBuffer = Offset(activeBuffer, currPos);
+    clearBuffer(activeBuffer);    
+    drawBuffer(movedBuffer, colorActive);    
+    activeBuffer = movedBuffer;
+    console.log(activeBuffer + '/' + currPos);
+  }
+
   //Shit a new Brick at top middle
-  function ShitBrick(i) {    
+  function ShitBrick() {    
 
     currSprite = 
       `100
@@ -82,7 +94,7 @@ $( document ).ready(function() {
   //if the active brick hits something
   function detectCollide() {
     var itm = activeBuffer.split(',');
-    var commited = commitBuffer.split(',');
+    var commited = commitedBuffer.split(',');
     
     if (activeBuffer.trim() != '') {
       for (var i = 0; i < itm.length; i++) {
@@ -130,7 +142,6 @@ $( document ).ready(function() {
     for (var i = 0; i < arr.length; i++) {
       newBuffer += (parseInt(arr[i]) + parseInt(offset)) + ',';
     }
-    console.log(newBuffer);
     return newBuffer;
   }
 
@@ -140,35 +151,24 @@ $( document ).ready(function() {
               .filter(Boolean)
               .sort(function(a, b){return a-b});
     for (var i = 0; i < arr.length; i++) {
-      $("#" + arr[i]).css({"background-color": "black"});      
+      $("#" + arr[i]).css({"background-color": colorBg});      
     }
     activeBuffer = '';
   }
   
-  function lockBuffer(buffer) {
-    commitBuffer += buffer;      
+  function CommitBuffer(buffer) {
+    commitedBuffer += buffer;      
   }
   
-  function drawActive() {
+  function drawBuffer(buffer, color) {
 
-    var arr = activeBuffer.trim()
+    var arr = buffer.trim()
               .split(',')
               .filter(Boolean)
               .sort(function(a, b){return a-b});
 
     for (var i = 0; i < arr.length; i++) {
-      $("#" + arr[i]).css({"background-color":"lightblue"});
-    }
-  }
-
-  function drawCommited() {
-    var arr = commitBuffer.trim()
-              .split(',')
-              .filter(Boolean)
-              .sort(function(a, b){return a-b});
-
-    for (var i = 0; i < arr.length; i++) {
-      $("#" + arr[i]).css({"background-color": "white"});
+      $("#" + arr[i]).css({"background-color": color});
     }
   }
     
@@ -230,7 +230,7 @@ $( document ).ready(function() {
               clearBuffer(activeBuffer);
               currSprite = rotateSprite(currSprite, true); 
               activeBuffer = convertSprite(currSprite, currPos);    
-              drawActive();
+              drawBuffer(activeBuffer, colorActive);
               break;
           case 2: //mid
 
@@ -239,7 +239,7 @@ $( document ).ready(function() {
               clearBuffer(activeBuffer);
               currSprite = rotateSprite(currSprite, false); 
               activeBuffer = convertSprite(currSprite, currPos); 
-              drawActive();   
+              drawBuffer(activeBuffer, colorActive);
               break;
           default: //other
       }
