@@ -64,9 +64,8 @@ $( document ).ready(function() {
         ShitBrick();
       }   
     } else {
-
       CommitBuffer(activeBuffer)
-      console.log('game over');
+      console.log('Game Over.');
       clearInterval(main);
     }
   }    
@@ -78,7 +77,7 @@ $( document ).ready(function() {
     clearBuffer(activeBuffer);    
     drawBuffer(movedBuffer, colorActive);    
     activeBuffer = movedBuffer;
-    console.log(activeBuffer + '/' + currPos);
+    console.log("(activeBuffer: " + activeBuffer + ') (currPos: ' + currPos + ')');
   }
 
   //Shit a new Brick at top middle
