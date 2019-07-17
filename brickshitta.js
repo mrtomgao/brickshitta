@@ -61,9 +61,11 @@ $( document ).ready(function() {
       } else { 
         //block collided with something, commit the active
         CommitBuffer(activeBuffer);
+        console.log('Collision Detected.');
         ShitBrick();
       }   
     } else {
+      //game over bro...
       CommitBuffer(activeBuffer)
       console.log('Game Over.');
       clearInterval(main);
