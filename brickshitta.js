@@ -9,7 +9,10 @@ $(document).ready(function() {
   //Init Globals
   var totalCols = 10;             //traditional tetris is 10 columns, by 20 rows
   var totalRows = 20;             //traditional tetris is 10 columns, by 20 rows
-  var speed = 1000;                //the speed of the game in milliseconds
+  var speed = 400;               //the speed of the game in milliseconds
+  var totalCapped = 0;            //count of total lines capped by gamer
+  var currlevel = 1;              //current level which affects speed
+  var levelBounce = 10;           //lines capped before bouncing to next level
   var activeBuffer = '';          //active is what's moving on screen
   var commitedBuffer = '';        //commited is what has collided or commited to the grid
   var currSprite = '';            //The current "Sprite" of Brick that has been shat
@@ -61,6 +64,7 @@ $(document).ready(function() {
         CheckForCapped();  
         ShitBrick();
       }   
+      StatusPing();
     } else {
       //game over bro...
       CommitBuffer(activeBuffer)
@@ -153,11 +157,17 @@ $(document).ready(function() {
       }
         if (lineCheck == totalCols) {
           cappedRows.push(y);
+          totalCapped++;
         }
     }
-    if (cappedRows.length > 0) {
-      DeleteRow(cappedRows);
+    for (var d = 0; d < cappedRows.length; d++) {
+      DeleteRow(cappedRows[d]);
     }
+  }
+
+  function StatusPing() {
+    clearInterval(main);
+    main = setInterval(Pulse, speed);
   }
 
   //if the active brick hits something via top down
@@ -281,36 +291,33 @@ $(document).ready(function() {
   //######################## DRAW FUNCS #########################
   //#############################################################
   
-  function DeleteRow(arrRows) {
-    var newComBuffer = "";
-    arrRows.sort(function(a,b) {return b-a});
+  function DeleteRow(r) {
+    var newComBuffer = '';
     var arrCom = commitedBuffer.trim()
           .split(',')
           .filter(Boolean)
           .sort(function(a, b){return a-b});
-    console.log('start' + arrCom.length);
-    for (var i = 0; i < arrRows.length; i++) {
-      var rowIndex = parseInt(arrRows[i]) * totalCols;
-      console.log(rowIndex);
-      for (var x = 1; x <= totalCols; x++) {
-        var del = parseInt(rowIndex + x);
-        for (var s = 0; s <= arrCom.length - 1; s++) {
-          if (parseInt(arrCom[s]) == del) {
-            //remove all elements of array
-            //console.log('remove' + arrCom[s]);
-            arrCom[s] = "";
-          }
+
+    var startRange = (r * totalCols) + 1;
+    var endRange = (r + 1) * totalCols;
+
+    for (var i = 0; i < arrCom.length; i++) {
+      if (parseInt(arrCom[i]) >= startRange && parseInt(arrCom[i]) <= endRange) {
+        //console.log("cell " + arrCom[i] + " is within range. " + startRange + " - " + endRange);
+      }
+      else {
+        if (parseInt(arrCom[i]) < startRange) {
+          //increment by a row if less than start point
+          newComBuffer += (parseInt(arrCom[i]) + totalCols) + ',';      
         }
+        else {
+          newComBuffer += arrCom[i] + ',';      
+        }
+
       }
     }
 
-    var newArrCom = arrCom.filter(Boolean);
-
-    for (var c = 0; c < newArrCom.length; c++) {
-      newComBuffer += newArrCom[c] + ",";
-    }
-
-    CommitBuffer(newComBuffer);
+    commitedBuffer = RedrawReturn(commitedBuffer, newComBuffer, colorCommited); 
 
   }
 
@@ -364,6 +371,25 @@ $(document).ready(function() {
     for (var i = 0; i < arr.length; i++) {
       $("#" + arr[i]).css({"background-color": color});
     }
+  }
+
+  function RedrawReturn(oldBuffa, newBuffa, color) {
+    var arrOld = oldBuffa.trim()
+          .split(',')
+          .filter(Boolean)
+          .sort(function(a, b){return a-b});
+    for (var i = 0; i < arrOld.length; i++) { 
+      $("#" + arrOld[i]).css({"background-color": colorBg});    
+    }
+
+    var arrNew = newBuffa.trim()
+          .split(',')
+          .filter(Boolean)
+          .sort(function(a, b){return a-b});
+    for (var i = 0; i < arrNew.length; i++) { 
+      $("#" + arrNew[i]).css({"background-color": color});    
+    }
+    return newBuffa;
   }
     
   function convertSprite(sprite) {  
