@@ -9,14 +9,15 @@ $(document).ready(function() {
   //Init Globals
   var totalCols = 10;             //traditional tetris is 10 columns, by 20 rows
   var totalRows = 20;             //traditional tetris is 10 columns, by 20 rows
-  var speed = 400;               //the speed of the game in milliseconds
-  var totalCapped = 0;            //count of total lines capped by gamer
-  var currlevel = 1;              //current level which affects speed
-  var levelBounce = 10;           //lines capped before bouncing to next level
-  var activeBuffer = '';          //active is what's moving on screen
-  var commitedBuffer = '';        //commited is what has collided or commited to the grid
+  var totalCapBounce = 4;         //lines capped before bouncing to next level
+  var totalSpeedMod = .85;         //percentage of speed mod when next level is achieved
+  var currSpeed = 600;            //the speed of the game in milliseconds
+  var currCappedCount = 0;        //count of total lines capped by gamer
+  var currLvl = 0;                //current level which affects speed
   var currSprite = '';            //The current "Sprite" of Brick that has been shat
   var currPos;                    //current position of Brick which has been shat
+  var activeBuffer = '';          //active is what's moving on screen
+  var commitedBuffer = '';        //commited is what has collided or commited to the grid
   var gameOver = false;           //is the player dead
   var colorActive = 'lightblue';  //color for the active brix
   var colorCommited = 'white';    //color for brix that have set
@@ -27,7 +28,7 @@ $(document).ready(function() {
   ShitBrick();
   
   //Create the main interval
-  var main = setInterval(Pulse, speed);
+  var main = setInterval(Pulse, currSpeed);
 
 
 
@@ -68,7 +69,7 @@ $(document).ready(function() {
     } else {
       //game over bro...
       CommitBuffer(activeBuffer)
-      console.log('Game Over.');
+      console.log('Game Over Bro. Score: ' + currCappedCount);
       clearInterval(main);
     }
   }    
@@ -110,12 +111,17 @@ $(document).ready(function() {
        1`
       ];
 
-    currSprite = brix[Math.floor(Math.random() * 7)];
+    currSprite = brix[Math.floor(Math.random() * brix.length)];
 
     //setting top middle
     currPos = calcMid(currSprite);   
     activeBuffer = convertSprite(currSprite);
-    drawBuffer(activeBuffer, colorActive);
+    if (collideVert(activeBuffer)) {
+      gameOver = true;
+    }
+    else {
+      drawBuffer(activeBuffer, colorActive);
+    }
   }
 
   //if the shit brick hits something while spinnin
@@ -157,7 +163,7 @@ $(document).ready(function() {
       }
         if (lineCheck == totalCols) {
           cappedRows.push(y);
-          totalCapped++;
+          currCappedCount++;
         }
     }
     for (var d = 0; d < cappedRows.length; d++) {
@@ -165,9 +171,16 @@ $(document).ready(function() {
     }
   }
 
+  //checks the current level and score of game and increases speed if necessary
   function StatusPing() {
-    clearInterval(main);
-    main = setInterval(Pulse, speed);
+    var lvl = parseInt(currCappedCount/totalCapBounce);
+    if (lvl > currLvl) {
+      currLvl = lvl;
+      currSpeed = parseInt(currSpeed * totalSpeedMod);
+      clearInterval(main);
+      main = setInterval(Pulse, currSpeed);
+      console.log('Welcome to level ' + currLvl + '! Speed ' + currSpeed);
+    }
   }
 
   //if the active brick hits something via top down
