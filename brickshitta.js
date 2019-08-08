@@ -10,7 +10,7 @@ $(document).ready(function() {
   var totalCols = 10;             //traditional tetris is 10 columns, by 20 rows
   var totalRows = 20;             //traditional tetris is 10 columns, by 20 rows
   var totalCapBounce = 4;         //lines capped before bouncing to next level
-  var totalSpeedMod = .85;         //percentage of speed mod when next level is achieved
+  var totalSpeedMod = .85;        //percentage of speed mod when next level is achieved
   var currSpeed = 600;            //the speed of the game in milliseconds
   var currCappedCount = 0;        //count of total lines capped by gamer
   var currLvl = 0;                //current level which affects speed
@@ -461,19 +461,27 @@ $(document).ready(function() {
     if (!gameOver) {
       switch (event.which) {
         case 1: //left 
-            clearBuffer(activeBuffer);
-            currSprite = rotateSprite(currSprite, true); 
-            activeBuffer = convertSprite(currSprite, currPos);    
-            drawBuffer(activeBuffer, colorActive);
+            var newSprite = rotateSprite(currSprite, true);
+            var rotBuffer = convertSprite(newSprite, currPos);
+            if (!collideOnRotate(rotBuffer)) {
+              clearBuffer(activeBuffer);
+              currSprite = newSprite;
+              activeBuffer = rotBuffer;
+              drawBuffer(activeBuffer, colorActive);              
+            }
             break;
         case 2: //mid
 
             break;
         case 3: //right
-            clearBuffer(activeBuffer);
-            currSprite = rotateSprite(currSprite, false); 
-            activeBuffer = convertSprite(currSprite, currPos); 
-            drawBuffer(activeBuffer, colorActive);
+            var newSprite = rotateSprite(currSprite, false);
+            var rotBuffer = convertSprite(newSprite, currPos);
+            if (!collideOnRotate(rotBuffer)) {
+              clearBuffer(activeBuffer);
+              currSprite = newSprite;
+              activeBuffer = rotBuffer;
+              drawBuffer(activeBuffer, colorActive);              
+            }
             break;
         default: //other
       }
