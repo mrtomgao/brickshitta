@@ -1,4 +1,5 @@
 //BRICK SHITTA 1.0.0  BY TGAO
+//Add comment to shitta
   
 $(document).ready(function() {
 
