@@ -1,8 +1,4 @@
 //BRICK SHITTA 1.0.0  BY TGAO
-//Add comment to shitta
-//Add comment other branch
-//Ay wassup son
-//AYYY doggg
 
 $(document).ready(function() {
 
